@@ -1,11 +1,11 @@
 const express = require('express');
-
+const db = require('../db');
 const router = express.Router();
 
 router.get('/', async (req, res) => {
 
     try {
-        const data = db.query('SELECT * FROM todo;');
+        const data = await db.query('SELECT * FROM todo;');
         res.status(200).json({todo: data.rows});
     }
     catch(error) {
@@ -14,13 +14,14 @@ router.get('/', async (req, res) => {
     
 });
 
-router.post('/', (req, res) => {
+
+router.post('/', async (req, res) => {
     console.log(req.body);
     const { task } = req.body;
 
     try {
         const data = await db.query('INSERT INTO todo (task) VALUES ($1);', [task]);
-        console.log(data);
+        console.log(data.rowCount);
         res.status(200).json({message: `${data.rowCount} row inserted.`});
     } 
     catch (error) {
@@ -30,7 +31,7 @@ router.post('/', (req, res) => {
 });
 
 router.delete('/', async (req, res) => {
-    const {id} = req;
+    const {id} = req.body;
     const data = await db.query("SELECT * FROM todo WHERE id = $1;", [id]);
 
     if(data.rows.length === 0) {
@@ -47,4 +48,4 @@ router.delete('/', async (req, res) => {
 });
 
 
-module.exports = ; 
+module.exports = router; 
